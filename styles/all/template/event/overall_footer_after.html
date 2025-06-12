@@ -1,0 +1,8 @@
+<script type="text/javascript">
+phpbb.addAjaxCallback('resolved_topic_api', function(res) {
+	'use strict';
+	console.info('status_updates_api:'+res);
+	phpbb.alert(res.title,res.text);
+	phpbb.closeDarkenWrapper(2500);
+});
+</script>

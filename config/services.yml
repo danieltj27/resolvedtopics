@@ -1,0 +1,32 @@
+services:
+    danieltj.resolvedtopics.controller.api:
+        class: danieltj\resolvedtopics\controller\api
+        arguments:
+            - '@dispatcher'
+            - '@language'
+            - '@log'
+            - '@notification_manager'
+            - '@request'
+            - '@user'
+            - '@danieltj.resolvedtopics.includes.functions'
+
+    danieltj.resolvedtopics.listener:
+        class: danieltj\resolvedtopics\event\listener
+        arguments:
+            - '@auth'
+            - '@language'
+            - '@log'
+            - '@routing.helper'
+            - '@template'
+            - '@user'
+            - '@danieltj.resolvedtopics.includes.functions'
+        tags:
+            - { name: event.listener }
+
+    danieltj.resolvedtopics.includes.functions:
+        class: danieltj\resolvedtopics\includes\functions
+        arguments:
+            - '@auth'
+            - '@dbal.conn'
+            - '@routing.helper'
+            - '@user'

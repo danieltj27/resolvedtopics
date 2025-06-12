@@ -1,0 +1,7 @@
+{% if postrow.S_FIRST_POST and TOPIC_RESOLVED %}
+	<p class="post-notice resolved">
+		<a href="{{ TOPIC_RESOLVED }}">
+			<i class="icon fa-check-circle fa-fw icon-blue" aria-hidden="true"></i><strong>{{ lang( 'RESOLVED_TOPIC_MESSAGE' ) }}</strong>
+		</a>
+	</p>
+{% endif %}

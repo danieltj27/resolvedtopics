@@ -8,7 +8,6 @@
 
 namespace danieltj\resolvedtopics\controller;
 
-use phpbb\event\dispatcher_interface as dispatcher;
 use phpbb\language\language;
 use phpbb\log\log;
 use phpbb\notification\manager as notifications;
@@ -20,11 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface as container;
 use Symfony\Component\HttpFoundation\JsonResponse as response;
 
 final class api {
-
-	/**
-	 * @var dispatcher
-	 */
-	protected $dispatcher;
 
 	/**
 	 * @var language
@@ -59,9 +53,8 @@ final class api {
 	/**
 	 * Constructor
 	 */
-	public function __construct( dispatcher $dispatcher, language $language, log $log, notifications $notifications, request $request, user $user, functions $functions ) {
+	public function __construct( language $language, log $log, notifications $notifications, request $request, user $user, functions $functions ) {
 
-		$this->dispatcher = $dispatcher;
 		$this->language = $language;
 		$this->log = $log;
 		$this->notifications = $notifications;

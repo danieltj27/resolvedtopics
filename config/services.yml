@@ -2,7 +2,6 @@ services:
     danieltj.resolvedtopics.controller.api:
         class: danieltj\resolvedtopics\controller\api
         arguments:
-            - '@dispatcher'
             - '@language'
             - '@log'
             - '@notification_manager'

@@ -88,7 +88,10 @@ final class api {
 
 		if ( ! check_link_hash( $this->request->variable( 'csrf', '' ), $this->functions->get_ext_csrf_token_name() ) ) {
 
-			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_CSRF_FAILURE', time(), [ 'reportee_id' => $user_id ] );
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_CSRF_FAILURE', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return new response( [
 				'http'			=> 401,
@@ -101,7 +104,10 @@ final class api {
 
 		if ( ! $this->request->is_ajax() ) {
 
-			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_INVALID_METHOD', time(), [ 'reportee_id' => $user_id ] );
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_INVALID_METHOD', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return new response( [
 				'http'			=> 405,
@@ -118,7 +124,10 @@ final class api {
 
 			if ( false === $response ) {
 
-				$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_RESOLVE_FAILURE', time(), [ 'reportee_id' => $user_id ] );
+				$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_RESOLVE_FAILURE', time(), [
+					'reportee_id' => $user_id,
+					'post_id' => $post_id,
+				] );
 
 				return new response( [
 					'http'			=> 500,

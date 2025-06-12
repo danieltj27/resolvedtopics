@@ -195,9 +195,10 @@ final class functions {
 
 		if ( false === $topic ) {
 
-			/**
-			 * @todo add error logging
-			 */
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_INVALID_TOPIC', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return false;
 
@@ -209,9 +210,10 @@ final class functions {
 
 		if ( ! $this->can_resolve_topic( $topic[ 'topic_id' ], $topic ) ) {
 
-			/**
-			 * @todo add error logging
-			 */
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_NO_PERMISSION', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return false;
 
@@ -232,9 +234,10 @@ final class functions {
 		 */
 		if ( 0 !== $resolved_id && 1 !== $post_visibility ) {
 
-			/**
-			 * @todo add error logging
-			 */
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_POST_HIDDEN', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return false;
 
@@ -250,9 +253,10 @@ final class functions {
 
 		if ( 1 !== $this->database->sql_affectedrows() ) {
 
-			/**
-			 * @todo add error logging
-			 */
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_QUERY_FAILED', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
 
 			return false;
 

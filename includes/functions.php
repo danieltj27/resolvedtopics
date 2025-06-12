@@ -95,7 +95,7 @@ final class functions {
 		if ( is_array( $data ) && ! empty( $data ) && isset( $data[ 'forum_id' ] ) && isset( $data[ 'topic_poster' ] ) ) {
 
 			$forum_id = (int) $data[ 'forum_id' ];
-			$topic_poster = (int) $data[ 'topic_poster' ];
+			$topic_starter = (int) $data[ 'topic_poster' ];
 
 		} else {
 

@@ -19,12 +19,10 @@ if ( empty( $lang ) || ! is_array( $lang ) ) {
 }
 
 $lang = array_merge( $lang, [
-	'RESOLVED_TOPICS_API_CONFIRM_RESOLVE_TOPIC'		=> 'Are you sure you want to resolve this topic?',
-	'RESOLVED_TOPICS_API_CONFIRM_UNRESOLVE_TOPIC'	=> 'Are you sure you want to unresolve this topic?',
+	'RESOLVED_TOPICS_API_CONFIRM_RESOLVE'		=> 'Are you sure you want to update the topic resolution?',
 
-	'RESOLVED_TOPICS_API_TOPIC_RESOLVED'			=> 'The topic was successfully marked as resolved.',
-	'RESOLVED_TOPICS_API_TOPIC_UNRESOLVE'			=> 'The topic was successfully marked as unresolved.',
-	'RESOLVED_TOPICS_API_FAILED_RESOLUTION'			=> 'There was a problem updating the topic resolution data.',
+	'RESOLVED_TOPICS_API_ACTION_SUCCESS'		=> 'The topic resolution was updated successfully.',
+	'RESOLVED_TOPICS_API_ACTION_ERROR'			=> 'There was a problem updating the topic resolution data.',
 
 	// LOGS
 	'RESOLVED_TOPICS_ERROR_CSRF_FAILURE'		=> '<strong>Resolved Topics extension</strong>:<br />» The user submitted an invalid form token.',

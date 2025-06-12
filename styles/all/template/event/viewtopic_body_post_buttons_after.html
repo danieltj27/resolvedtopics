@@ -1,6 +1,6 @@
 {% if postrow.U_RESOLVE %}
 	<li>
-		<a href="{{ postrow.U_RESOLVE }}" title="{% if postrow.POST_RESOLVED %}{{ lang( 'UNRESOLVE_TOPIC' ) }}{% else %}{{ lang( 'RESOLVE_TOPIC' ) }}{% endif %}" class="button button-icon-only" data-ajax="resolved_topic_api" data-refresh="true">
+		<a href="{{ postrow.U_RESOLVE }}" title="{% if postrow.POST_RESOLVED %}{{ lang( 'UNRESOLVE_TOPIC' ) }}{% else %}{{ lang( 'RESOLVE_TOPIC' ) }}{% endif %}" class="button button-icon-only" data-ajax="resolved_topic_api">
 			{% if postrow.POST_RESOLVED %}
 				<i class="icon fa-minus-circle fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang( 'UNRESOLVE_TOPIC' ) }}</span>
 			{% else %}

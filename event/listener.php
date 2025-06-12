@@ -90,7 +90,7 @@ class listener implements EventSubscriberInterface {
 	 */
 	public function add_languages() {
 
-		$this->language->add_lang( [ 'common', 'permissions' ], 'danieltj/resolvedtopics' );
+		$this->language->add_lang( [ 'api', 'common', 'permissions' ], 'danieltj/resolvedtopics' );
 
 	}
 

@@ -145,11 +145,7 @@ final class functions {
 	}
 
 	/**
-	 * Returns whether a topic has been resolved.
-	 * 
-	 * This method will return the data of an individual post that
-	 * has been marked as the topic resolution or will return a boolean
-	 * value of false if nothing is set (or the post isn't found).
+	 * Returns the post data of a resolved topic.
 	 * 
 	 * @since 1.0.0
 	 * 

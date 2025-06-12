@@ -93,7 +93,7 @@ final class api {
 			return new response( [
 				'http'			=> 401,
 				'title'			=> $this->language->lang( 'INFORMATION' ),
-				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ERROR_MESSAGE' ),
+				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ACTION_ERROR' ),
 				'post_id'		=> $post_id
 			] );
 
@@ -106,33 +106,41 @@ final class api {
 			return new response( [
 				'http'			=> 405,
 				'title'			=> $this->language->lang( 'INFORMATION' ),
-				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ERROR_MESSAGE' ),
+				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ACTION_ERROR' ),
 				'post_id'		=> $post_id
 			] );
 
 		}
 
-		$response = $this->functions->update_topic_resolution( $post_id );
+		if ( confirm_box( true ) ) {
 
-		if ( false === $response ) {
+			$response = $this->functions->update_topic_resolution( $post_id );
 
-			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_RESOLVE_FAILURE', time(), [ 'reportee_id' => $user_id ] );
+			if ( false === $response ) {
+
+				$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_RESOLVE_FAILURE', time(), [ 'reportee_id' => $user_id ] );
+
+				return new response( [
+					'http'			=> 500,
+					'title'			=> $this->language->lang( 'INFORMATION' ),
+					'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ACTION_ERROR' ),
+					'post_id'		=> $post_id
+				] );
+
+			}
 
 			return new response( [
-				'http'			=> 500,
+				'http'			=> 200,
 				'title'			=> $this->language->lang( 'INFORMATION' ),
-				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ERROR_MESSAGE' ),
+				'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_ACTION_SUCCESS' ),
 				'post_id'		=> $post_id
 			] );
 
-		}
+		} else {
 
-		return new response( [
-			'http'			=> 200,
-			'title'			=> $this->language->lang( 'INFORMATION' ),
-			'text'			=> $this->language->lang( 'RESOLVED_TOPICS_API_TOPIC_RESOLVED' ),
-			'post_id'		=> $post_id
-		] );
+			confirm_box( false, $this->language->lang( 'RESOLVED_TOPICS_API_CONFIRM_RESOLVE' ), build_hidden_fields( [ 'post_id' => $post_id ] ) );
+
+		}
 
 	}
 

@@ -10,8 +10,6 @@ namespace danieltj\resolvedtopics\event;
 
 use phpbb\auth\auth;
 use phpbb\language\language;
-use phpbb\log\log;
-use phpbb\routing\helper;
 use phpbb\template\template;
 use phpbb\user;
 use danieltj\resolvedtopics\includes\functions;
@@ -28,16 +26,6 @@ class listener implements EventSubscriberInterface {
 	 * @var language
 	 */
 	protected $language;
-
-	/**
-	 * @var log
-	 */
-	protected $log;
-
-	/**
-	 * @var router
-	 */
-	protected $router;
 
 	/**
 	 * @var template
@@ -57,12 +45,10 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * Constructor
 	 */
-	public function __construct( auth $auth, language $language, log $log, helper $routing_helper, template $template, user $user, functions $functions ) {
+	public function __construct( auth $auth, language $language, template $template, user $user, functions $functions ) {
 
 		$this->auth = $auth;
 		$this->language = $language;
-		$this->log = $log;
-		$this->router = $routing_helper;
 		$this->template = $template;
 		$this->user = $user;
 		$this->functions = $functions;

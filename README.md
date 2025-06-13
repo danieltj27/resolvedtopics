@@ -4,7 +4,8 @@ Mark topics as solved by selecting a post as a resolution.
 
 ## Features
 
-- Allows topic starters and moderators to mark topics as resolved by selecting a post.
+- Allows users of a forum to mark topics as resolved by selecting a post that resolved it.
+- Adds two new permissions, one to allow topic starters to mark their topics as resolved and one to allow moderators to mark all topics as resolved regardless of whether they are the topic starter.
 
 ## Install
 

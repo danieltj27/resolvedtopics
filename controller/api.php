@@ -113,7 +113,7 @@ final class api {
 
 		if ( confirm_box( true ) ) {
 
-			$response = $this->functions->update_topic_resolution( $post_id );
+			$response = $this->functions->resolve_topic_by_post_id( $post_id );
 
 			if ( false === $response ) {
 

@@ -172,7 +172,7 @@ final class functions {
 	}
 
 	/**
-	 * Updates the topic resolution status.
+	 * Resolves a topic based on a related post ID.
 	 * 
 	 * @since 1.0.0
 	 * 
@@ -180,9 +180,11 @@ final class functions {
 	 * 
 	 * @return boolean  True if successful and false on failure.
 	 */
-	public function update_topic_resolution( $post_id ) {
+	public function resolve_topic_by_post_id( $post_id ) {
 
 		$post_id = (int) $post_id;
+
+		$user_id = (int) $this->user->data[ 'user_id' ];
 
 		$result = $this->database->sql_query(
 			'SELECT t.*, p.post_visibility
@@ -256,6 +258,44 @@ final class functions {
 			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_QUERY_FAILED', time(), [
 				'reportee_id' => $user_id,
 				'post_id' => $post_id,
+			] );
+
+			return false;
+
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Unresolves a topic by the specified topic ID.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param integer $topic_id The ID of the topic to unresolve.
+	 * 
+	 * @return boolean  True if successful and false on failure.
+	 */
+	public function unresolve_topic_by_id( $topic_id ) {
+
+		$topic_id = (int) $topic_id;
+
+		$user_id = (int) $this->user->data[ 'user_id' ];
+
+		$this->database->sql_query(
+			'UPDATE ' . TOPICS_TABLE . '
+				SET ' . $this->database->sql_build_array( 'UPDATE', [
+					'topic_resolved_post_id' => 0,
+				] ) . '
+				WHERE topic_id = ' . $this->database->sql_escape( $topic_id )
+		);
+
+		if ( 1 !== $this->database->sql_affectedrows() ) {
+
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_QUERY_FAILED', time(), [
+				'reportee_id' => $user_id,
+				'topic_id' => $topic_id,
 			] );
 
 			return false;

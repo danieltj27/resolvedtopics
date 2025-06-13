@@ -4,7 +4,7 @@ Mark topics as solved by selecting a post as a resolution.
 
 ## Features
 
-1. ???
+- Allows topic starters and moderators to mark topics as resolved by selecting a post.
 
 ## Install
 

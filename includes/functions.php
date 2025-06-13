@@ -161,13 +161,39 @@ final class functions {
 		$result = $this->database->sql_query(
 			'SELECT p.*
 				FROM ' . TOPICS_TABLE . ' AS t, ' . POSTS_TABLE . ' AS p
-				WHERE t.topic_id = ' . $this->database->sql_escape( $topic_id ) . ' and p.post_id = t.topic_resolved_post_id'
+				WHERE t.topic_id = ' . $this->database->sql_escape( $topic_id ) . ' AND p.post_id = t.topic_resolved_post_id'
 			);
 
 		$post = $this->database->sql_fetchrow( $result );
 		$this->database->sql_freeresult( $result );
 
 		return $post;
+
+	}
+
+	/**
+	 * Returns the user data that resolved the specified topic.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param integer $topic_id The ID of the resolved topic.
+	 * 
+	 * @return array|boolean  An array of user data or false if not found.
+	 */
+	public function get_resolved_topic_user( $topic_id ) {
+
+		$topic_id = (int) $topic_id;
+
+		$result = $this->database->sql_query(
+			'SELECT u.*
+				FROM ' . USERS_TABLE . ' AS u, ' . TOPICS_TABLE . ' AS t
+				WHERE u.user_id = t.topic_resolved_user_id AND t.topic_id = ' . $this->database->sql_escape( $topic_id )
+			);
+
+		$user = $this->database->sql_fetchrow( $result );
+		$this->database->sql_freeresult( $result );
+
+		return $user;
 
 	}
 
@@ -189,7 +215,7 @@ final class functions {
 		$result = $this->database->sql_query(
 			'SELECT t.*, p.post_visibility
 				FROM ' . TOPICS_TABLE . ' AS t, ' . POSTS_TABLE . ' AS p
-				WHERE p.post_id = ' . $this->database->sql_escape( $post_id ) . ' and t.topic_id = p.topic_id'
+				WHERE p.post_id = ' . $this->database->sql_escape( $post_id ) . ' AND t.topic_id = p.topic_id'
 			);
 
 		$topic = $this->database->sql_fetchrow( $result );
@@ -248,7 +274,8 @@ final class functions {
 		$this->database->sql_query(
 			'UPDATE ' . TOPICS_TABLE . '
 				SET ' . $this->database->sql_build_array( 'UPDATE', [
-					'topic_resolved_post_id' => $resolved_id,
+					'topic_resolved_post_id' => $this->database->sql_escape( $resolved_id ),
+					'topic_resolved_user_id' => $this->database->sql_escape( $user_id ),
 				] ) . '
 				WHERE topic_id = ' . $this->database->sql_escape( $topic[ 'topic_id' ] )
 		);
@@ -287,6 +314,7 @@ final class functions {
 			'UPDATE ' . TOPICS_TABLE . '
 				SET ' . $this->database->sql_build_array( 'UPDATE', [
 					'topic_resolved_post_id' => 0,
+					'topic_resolved_user_id' => $this->database->sql_escape( $user_id ),
 				] ) . '
 				WHERE topic_id = ' . $this->database->sql_escape( $topic_id )
 		);

@@ -141,14 +141,33 @@ class listener implements EventSubscriberInterface {
 	 */
 	public function update_topic_post_row( $event ) {
 
+		$topic_resolved_text = '';
+
+		if ( 0 !== (int) $event[ 'topic_data' ][ 'topic_resolved_user_id' ] && $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) {
+
+			$user = $this->functions->get_resolved_topic_user( $event[ 'topic_data' ][ 'topic_id' ] );
+
+			if ( false !== $user ) {
+
+				$asdf1 = $this->language->lang( 'RESOLVED_POST_MESSAGE' );
+				$asdf2 = get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] );
+				$asdf3 = sprintf( $this->language->lang( 'RESOLVED_POST_MESSAGE' ), get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] ) );
+
+				$topic_resolved_text = sprintf( $this->language->lang( 'RESOLVED_POST_MESSAGE' ), get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] ) );
+
+			}
+
+		}
+
 		$topic_data = [
 			'forum_id'		=> $event[ 'topic_data' ][ 'forum_id' ],
 			'topic_poster'	=> $event[ 'topic_data' ][ 'topic_poster' ],
 		];
 
 		$event[ 'post_row' ] = array_merge( $event[ 'post_row' ], [
-			'U_RESOLVE'			=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_id' ], $topic_data ) && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
-			'POST_RESOLVED'		=> ( $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) ? true : false,
+			'U_RESOLVE'					=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_id' ], $topic_data ) && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
+			'IS_POST_RESOLVED'			=> ( $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) ? true : false,
+			'POST_RESOLVED_NOTICE'		=> $topic_resolved_text,
 		] );
 
 	}

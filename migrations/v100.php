@@ -15,7 +15,10 @@ class v100 extends \phpbb\db\migration\migration {
 	 */
 	public function effectively_installed() {
 
-		return $this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_post_id' );
+		return (
+			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_post_id' ) &&
+			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_user_id' )
+		);
 
 	}
 
@@ -37,6 +40,7 @@ class v100 extends \phpbb\db\migration\migration {
 			'add_columns' => [
 				$this->table_prefix . 'topics' => [
 					'topic_resolved_post_id' => [ 'UINT:8', 0 ],
+					'topic_resolved_user_id' => [ 'UINT:8', 0 ],
 				]
 			]
 		];
@@ -52,6 +56,7 @@ class v100 extends \phpbb\db\migration\migration {
 			'drop_columns' => [
 				$this->table_prefix . 'topics' => [
 					'topic_resolved_post_id',
+					'topic_resolved_user_id',
 				]
 			]
 		];

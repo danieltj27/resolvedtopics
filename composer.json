@@ -1,7 +1,7 @@
 {
     "name": "danieltj/resolvedtopics",
     "type": "phpbb-extension",
-    "description": "Mark topics as solved by selecting a post as a resolution.",
+    "description": "Set a topic as solved by selecting a post as a resolution.",
     "version": "1.0.0",
     "license": "GPL-2.0-only",
     "authors": [

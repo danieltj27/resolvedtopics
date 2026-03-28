@@ -2,7 +2,7 @@
 
 /**
  * @package Resolved Topics
- * @copyright (c) 2025 Daniel James
+ * @copyright (c) 2026 Daniel James
  * @license https://opensource.org/license/gpl-2-0
  */
 
@@ -148,10 +148,6 @@ class listener implements EventSubscriberInterface {
 			$user = $this->functions->get_resolved_topic_user( $event[ 'topic_data' ][ 'topic_id' ] );
 
 			if ( false !== $user ) {
-
-				$asdf1 = $this->language->lang( 'RESOLVED_POST_MESSAGE' );
-				$asdf2 = get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] );
-				$asdf3 = sprintf( $this->language->lang( 'RESOLVED_POST_MESSAGE' ), get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] ) );
 
 				$topic_resolved_text = sprintf( $this->language->lang( 'RESOLVED_POST_MESSAGE' ), get_username_string( 'full', $user[ 'user_id' ], $user[ 'username' ], $user[ 'user_colour' ] ) );
 

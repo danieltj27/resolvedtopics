@@ -2,7 +2,7 @@
 
 /**
  * @package Resolved Topics
- * @copyright (c) 2025 Daniel James
+ * @copyright (c) 2026 Daniel James
  * @license https://opensource.org/license/gpl-2-0
  */
 
@@ -23,5 +23,5 @@ $lang = array_merge( $lang, [
 	'UNRESOLVE_TOPIC'	=> 'Unresolve topic',
 
 	'RESOLVED_TOPIC_MESSAGE'	=> 'Topic has been resolved',
-	'RESOLVED_POST_MESSAGE'		=> '%s marked this topic as resolved with this post.',
+	'RESOLVED_POST_MESSAGE'		=> '%s set this post as the topic resolution.',
 ] );

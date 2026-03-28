@@ -1,6 +1,6 @@
 # Resolved Topics
 
-Mark topics as solved by selecting a post as a resolution.
+Set a topic as solved by selecting a post as a resolution.
 
 ## Features
 
@@ -11,6 +11,7 @@ Mark topics as solved by selecting a post as a resolution.
 
 1. Add the extension files into the `ext/danieltj/resolvedtopics` directory.
 2. Log in to the Admin Control Panel and install the extension.
+3. Adjust your forum based permissions to decide who can mark topics as resolved.
 
 ## Licence
 

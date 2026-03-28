@@ -65,7 +65,7 @@ final class functions {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @return string  The route to resolve a topic.
+	 * @return string  The route used to resolve a topic.
 	 */
 	public function get_resolve_topic_route( $post_id ) {
 
@@ -81,60 +81,36 @@ final class functions {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $topic_id The ID of the topic to check permissions for.
-	 * @param array   $data     An array containing topic data. If the 'forum_id' and 'topic_poster'
-	 *                          keys exist, the values will be used instead of querying the database
-	 *                          which will save on queries if this is called inside a loop.
+	 * @param integer $topic_author The user ID of the topic author which is used to check
+	 *                              against the current authenticated user to ensure that
+	 *                              they match. This is because only the topic author and
+	 *                              moderators with permission can resolve topics.
+	 * @param integer $forum_id     The forum ID to check permissions for the current user.
 	 * 
-	 * @return boolean  True if the user can resolve the topic, false if they cannot.
+	 * @return boolean  True if the user has permission to resolve topics
+	 *                  and false if they do not.
 	 */
-	public function can_resolve_topic( $topic_id, $data = [] ) {
+	public function can_resolve_topic( $topic_author, $forum_id ) {
 
-		$topic_id = (int) $topic_id;
+		$topic_author = (int) $topic_author;
+		$forum_id = (int) $forum_id;
 
-		if ( is_array( $data ) && ! empty( $data ) && isset( $data[ 'forum_id' ] ) && isset( $data[ 'topic_poster' ] ) ) {
+		// Must have a valid user/forum ID and cannot be a guest.
+		if ( ANONYMOUS === $topic_author || 0 === $topic_author || 0 === $forum_id ) {
 
-			$forum_id = (int) $data[ 'forum_id' ];
-			$topic_starter = (int) $data[ 'topic_poster' ];
-
-		} else {
-
-			$result = $this->database->sql_query(
-				'SELECT *
-					FROM ' . TOPICS_TABLE . '
-					WHERE topic_id = ' . $this->database->sql_escape( $topic_id )
-				);
-
-			$topic = $this->database->sql_fetchrow( $result );
-			$this->database->sql_freeresult( $result );
-
-			if ( false === $topic ) {
-
-				return false;
-
-			}
-
-			$forum_id = (int) $topic[ 'forum_id' ];
-			$topic_starter = (int) $topic[ 'topic_poster' ];
+			return false;
 
 		}
 
-		// Forum moderators only.
+		// Check the moderator based permissions.
 		if ( $this->auth->acl_getf( 'm_resolve_all_topics', $forum_id ) ) {
 
 			return true;
 
 		}
 
-		/**
-		 * Check that the user is not a guest, they started the topic
-		 * and that they have the forum based resolve permission.
-		 */
-		if (
-			ANONYMOUS !== $topic_starter &&
-			$this->user->data[ 'user_id' ] === $topic_starter &&
-			$this->auth->acl_getf( 'f_resolve_own_topics', $forum_id )
-		) {
+		// Check the forum based permissions.
+		if ( $this->user->data[ 'user_id' ] === $topic_author && $this->auth->acl_getf( 'f_resolve_own_topics', $forum_id ) ) {
 
 			return true;
 
@@ -149,12 +125,11 @@ final class functions {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $topic_id The ID of the topic to check.
+	 * @param integer $topic_id The topic ID used to query.
 	 * 
-	 * @return array|boolean  Returns the array of post data for the post that is
-	 *                        marked as the resolution or false if none is set.
+	 * @return array|boolean  Array of topic data or false if the query failed.
 	 */
-	public function is_topic_resolved( $topic_id ) {
+	public function get_resolved_topic_post( $topic_id ) {
 
 		$topic_id = (int) $topic_id;
 
@@ -172,13 +147,13 @@ final class functions {
 	}
 
 	/**
-	 * Returns the user data that resolved the specified topic.
+	 * Returns the post data of a resolved topic.
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $topic_id The ID of the resolved topic.
+	 * @param integer $topic_id The topic ID used to query.
 	 * 
-	 * @return array|boolean  An array of user data or false if not found.
+	 * @return array|boolean  Array of topic data or false if the query failed.
 	 */
 	public function get_resolved_topic_user( $topic_id ) {
 
@@ -198,13 +173,13 @@ final class functions {
 	}
 
 	/**
-	 * Resolves a topic based on a related post ID.
+	 * Resolve a topic by the post ID.
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $post_id The ID of the post to mark as resolved.
+	 * @param integer $post_id The ID of the post that resolves the selected topic.
 	 * 
-	 * @return boolean  True if successful and false on failure.
+	 * @return boolean  True on success or false on failure.
 	 */
 	public function resolve_topic_by_post_id( $post_id ) {
 
@@ -236,7 +211,7 @@ final class functions {
 		$post_visibility = (int) $topic[ 'post_visibility' ];
 		unset( $topic[ 'post_visibility' ] );
 
-		if ( ! $this->can_resolve_topic( $topic[ 'topic_id' ], $topic ) ) {
+		if ( ! $this->can_resolve_topic( $topic[ 'topic_poster' ], $topic[ 'forum_id' ] ) ) {
 
 			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_NO_PERMISSION', time(), [
 				'reportee_id' => $user_id,
@@ -296,13 +271,13 @@ final class functions {
 	}
 
 	/**
-	 * Unresolves a topic by the specified topic ID.
+	 * Unresolve a topic by the post ID.
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $topic_id The ID of the topic to unresolve.
+	 * @param integer $topic_id The ID of the topic that is unresolved.
 	 * 
-	 * @return boolean  True if successful and false on failure.
+	 * @return boolean  True on success or false on failure.
 	 */
 	public function unresolve_topic_by_id( $topic_id ) {
 

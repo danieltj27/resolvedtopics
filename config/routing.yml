@@ -1,5 +1,5 @@
 resolved_topics_api_resolve_topic:
-    path: /resolved-topics/api/post/{id}
+    path: /resolved-topics/api/{id}
     defaults: { _controller: danieltj.resolvedtopics.controller.api:resolve, id: 0 }
     requirements:
         id: \d+

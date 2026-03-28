@@ -118,7 +118,7 @@ class listener implements EventSubscriberInterface {
 	public function update_topic_template_vars( $event ) {
 
 		$event[ 'topic_row' ] = array_merge( $event[ 'topic_row' ], [
-			'TOPIC_RESOLVED' => ( 0 !== (int) $event[ 'row' ][ 'topic_resolved_post_id' ] && false !== $this->functions->is_topic_resolved( $event[ 'row' ][ 'topic_id' ] ) ) ? true : false,
+			'TOPIC_RESOLVED' => ( 0 !== (int) $event[ 'row' ][ 'topic_resolved_post_id' ] && false !== $this->functions->get_resolved_topic_post( $event[ 'row' ][ 'topic_id' ] ) ) ? true : false,
 		] );
 
 	}
@@ -128,7 +128,7 @@ class listener implements EventSubscriberInterface {
 	 */
 	public function add_topic_template_vars( $event ) {
 
-		$post = $this->functions->is_topic_resolved( $event[ 'topic_id' ] );
+		$post = $this->functions->get_resolved_topic_post( $event[ 'topic_id' ] );
 
 		$this->template->assign_vars( [
 			'TOPIC_RESOLVED' => ( false !== $post && isset( $post[ 'post_id' ] ) ) ? trim( generate_board_url(), '/' ) . '/viewtopic.php?p=' . $post[ 'post_id' ] . '#p' . $post[ 'post_id' ] : false,
@@ -155,15 +155,10 @@ class listener implements EventSubscriberInterface {
 
 		}
 
-		$topic_data = [
-			'forum_id'		=> $event[ 'topic_data' ][ 'forum_id' ],
-			'topic_poster'	=> $event[ 'topic_data' ][ 'topic_poster' ],
-		];
-
 		$event[ 'post_row' ] = array_merge( $event[ 'post_row' ], [
-			'U_RESOLVE'					=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_id' ], $topic_data ) && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
-			'IS_POST_RESOLVED'			=> ( $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) ? true : false,
-			'POST_RESOLVED_NOTICE'		=> $topic_resolved_text,
+			'U_RESOLVE'				=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_poster' ], $event[ 'topic_data' ][ 'forum_id' ] ) && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
+			'S_POST_RESOLUTION'		=> ( $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) ? true : false,
+			'POST_RESOLVED_TOPIC'	=> $topic_resolved_text,
 		] );
 
 	}

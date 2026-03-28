@@ -20,5 +20,5 @@ if ( empty( $lang ) || ! is_array( $lang ) ) {
 
 $lang = array_merge( $lang, [
 	'ACL_F_RESOLVE_OWN_TOPICS'	=> 'Can resolve own topics',
-	'ACL_M_RESOLVE_ALL_TOPICS'	=> 'Can resolve topics',
+	'ACL_M_RESOLVE_ALL_TOPICS'	=> 'Can resolve any topic',
 ] );

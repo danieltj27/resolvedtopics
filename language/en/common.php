@@ -22,6 +22,6 @@ $lang = array_merge( $lang, [
 	'RESOLVE_TOPIC'		=> 'Resolve topic',
 	'UNRESOLVE_TOPIC'	=> 'Unresolve topic',
 
-	'RESOLVED_TOPIC_MESSAGE'	=> 'Topic has been resolved',
+	'RESOLVED_TOPIC_MESSAGE'	=> 'This topic has been resolved.',
 	'RESOLVED_POST_MESSAGE'		=> '%s set this post as the topic resolution.',
 ] );

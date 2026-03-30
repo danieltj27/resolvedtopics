@@ -1,0 +1,12 @@
+Subject: {RESOLVED_BY_USER} marked your post as a topic resolution
+
+Hello {USERNAME},
+
+{RESOLVED_BY_USER} from {SITENAME] marked a post you made as a topic resolution.
+
+{TOPIC_TITLE}
+
+Manage your notification settings in the User Control Panel:
+{U_NOTIFICATION_SETTINGS}
+
+{EMAIL_SIG}

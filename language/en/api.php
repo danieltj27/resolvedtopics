@@ -31,4 +31,6 @@ $lang = array_merge( $lang, [
 	'RESOLVED_TOPICS_ERROR_FUNC_NO_PERMISSION'	=> '<strong>Resolved Topics extension</strong>:<br />» The user does not have permission to resole a topic.',
 	'RESOLVED_TOPICS_ERROR_FUNC_POST_HIDDEN'	=> '<strong>Resolved Topics extension</strong>:<br />» The post is not public and cannot resolve the topic.',
 	'RESOLVED_TOPICS_ERROR_FUNC_QUERY_FAILED'	=> '<strong>Resolved Topics extension</strong>:<br />» The database query did not affect any rows.',
+	'RESOLVED_TOPICS_ERROR_TOPIC_RESOLVED'		=> '<strong>Resolved Topics extension</strong>:<br />» Set a topic as resolved.',
+	'RESOLVED_TOPICS_ERROR_TOPIC_UNRESOLVED'	=> '<strong>Resolved Topics extension</strong>:<br />» Set a topic as unresolved.',
 ] );

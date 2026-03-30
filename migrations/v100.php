@@ -17,7 +17,8 @@ class v100 extends \phpbb\db\migration\migration {
 
 		return (
 			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_post_id' ) &&
-			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_user_id' )
+			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_poster_id' ) &&
+			$this->db_tools->sql_column_exists( $this->table_prefix . 'topics', 'topic_resolved_by_user_id' )
 		);
 
 	}
@@ -39,8 +40,9 @@ class v100 extends \phpbb\db\migration\migration {
 		return [
 			'add_columns' => [
 				$this->table_prefix . 'topics' => [
-					'topic_resolved_post_id' => [ 'UINT:8', 0 ],
-					'topic_resolved_user_id' => [ 'UINT:8', 0 ],
+					'topic_resolved_post_id'	=> [ 'UINT:8', 0 ],
+					'topic_resolved_poster_id'	=> [ 'UINT:8', 0 ],
+					'topic_resolved_by_user_id'	=> [ 'UINT:8', 0 ],
 				]
 			]
 		];
@@ -56,7 +58,8 @@ class v100 extends \phpbb\db\migration\migration {
 			'drop_columns' => [
 				$this->table_prefix . 'topics' => [
 					'topic_resolved_post_id',
-					'topic_resolved_user_id',
+					'topic_resolved_poster_id',
+					'topic_resolved_by_user_id',
 				]
 			]
 		];
@@ -69,7 +72,7 @@ class v100 extends \phpbb\db\migration\migration {
 	public function update_data() {
 
 		return [
-			[ 'config.add', [ 'status_updates_notify_item_id', '0' ] ],
+			[ 'config.add', [ 'resolved_topics_notify_item_id', '0' ] ],
 
 			[ 'permission.add', [ 'f_resolve_own_topics', false, 'f_bump' ] ],
 			[ 'permission.add', [ 'm_resolve_all_topics', false, 'm_lock' ] ],

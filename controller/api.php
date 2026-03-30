@@ -117,11 +117,6 @@ final class api {
 
 			if ( false === $response ) {
 
-				$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_RESOLVE_FAILURE', time(), [
-					'reportee_id' => $user_id,
-					'post_id' => $post_id,
-				] );
-
 				return new response( [
 					'http'			=> 500,
 					'title'			=> $this->language->lang( 'INFORMATION' ),

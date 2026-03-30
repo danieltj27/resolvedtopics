@@ -9,7 +9,10 @@
 namespace danieltj\resolvedtopics\includes;
 
 use phpbb\auth\auth;
+use phpbb\config\config;
 use phpbb\db\driver\driver_interface as database;
+use phpbb\log\log;
+use phpbb\notification\manager as notifications;
 use phpbb\routing\helper;
 use phpbb\user;
 
@@ -21,9 +24,24 @@ final class functions {
 	protected $auth;
 
 	/**
+	 * @var config
+	 */
+	protected $config;
+
+	/**
 	 * @var driver_interface
 	 */
 	protected $database;
+
+	/**
+	 * @var log
+	 */
+	protected $log;
+
+	/**
+	 * @var notifications
+	 */
+	protected $notifications;
 
 	/**
 	 * @var router
@@ -38,10 +56,13 @@ final class functions {
 	/**
 	 * Constructor
 	 */
-	public function __construct( auth $auth, database $database, helper $routing_helper, user $user ) {
+	public function __construct( auth $auth, config $config, database $database, log $log, notifications $notifications, helper $routing_helper, user $user ) {
 
 		$this->auth = $auth;
+		$this->config = $config;
 		$this->database = $database;
+		$this->log = $log;
+		$this->notifications = $notifications;
 		$this->router = $routing_helper;
 		$this->user = $user;
 
@@ -110,7 +131,7 @@ final class functions {
 		}
 
 		// Check the forum based permissions.
-		if ( $this->user->data[ 'user_id' ] === $topic_author && $this->auth->acl_getf( 'f_resolve_own_topics', $forum_id ) ) {
+		if ( (int) $this->user->data[ 'user_id' ] === $topic_author && $this->auth->acl_getf( 'f_resolve_own_topics', $forum_id ) ) {
 
 			return true;
 
@@ -162,7 +183,7 @@ final class functions {
 		$result = $this->database->sql_query(
 			'SELECT u.*
 				FROM ' . USERS_TABLE . ' AS u, ' . TOPICS_TABLE . ' AS t
-				WHERE u.user_id = t.topic_resolved_user_id AND t.topic_id = ' . $this->database->sql_escape( $topic_id )
+				WHERE u.user_id = t.topic_resolved_by_user_id AND t.topic_id = ' . $this->database->sql_escape( $topic_id )
 			);
 
 		$user = $this->database->sql_fetchrow( $result );
@@ -188,7 +209,7 @@ final class functions {
 		$user_id = (int) $this->user->data[ 'user_id' ];
 
 		$result = $this->database->sql_query(
-			'SELECT t.*, p.post_visibility
+			'SELECT t.*, p.poster_id, p.post_visibility
 				FROM ' . TOPICS_TABLE . ' AS t, ' . POSTS_TABLE . ' AS p
 				WHERE p.post_id = ' . $this->database->sql_escape( $post_id ) . ' AND t.topic_id = p.topic_id'
 			);
@@ -207,8 +228,11 @@ final class functions {
 
 		}
 
-		// Set the value of the post visibility status.
+		// Save post data that was fetched and clean the $topic variable.
+		$poster_id = (int) $topic[ 'poster_id' ];
 		$post_visibility = (int) $topic[ 'post_visibility' ];
+
+		unset( $topic[ 'poster_id' ] );
 		unset( $topic[ 'post_visibility' ] );
 
 		if ( ! $this->can_resolve_topic( $topic[ 'topic_poster' ], $topic[ 'forum_id' ] ) ) {
@@ -223,19 +247,17 @@ final class functions {
 		}
 
 		/**
-		 * Check if the specified post ID matches the ID of the current
-		 * resolved post. If it does then the topic should be 'unresolved'
-		 * and the `topic_resolved_post_id` column set to 0. If it doesn't
-		 * match then it's a different post being set as resolved so continue.
+		 * Set the post ID to `0` if this post is already marked as
+		 * the resolution for this topic (toggle behaviour).
 		 */
-		$resolved_id = ( $post_id === (int) $topic[ 'topic_resolved_post_id' ] ) ? 0 : $post_id;
+		if ( $post_id === (int) $topic[ 'topic_resolved_post_id' ] ) {
 
-		/**
-		 * Only allow visible posts to be set as the resolution for a topic
-		 * where the value is 1. Values of 0 mean not approved yet and values
-		 * of 2 means soft deleted.
-		 */
-		if ( 0 !== $resolved_id && 1 !== $post_visibility ) {
+			$post_id = 0;
+
+		}
+
+		// Stop soft deleted and unapproved posts from being marked as a resolution.
+		if ( 0 !== $post_id && 1 !== $post_visibility ) {
 
 			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_POST_HIDDEN', time(), [
 				'reportee_id' => $user_id,
@@ -249,8 +271,9 @@ final class functions {
 		$this->database->sql_query(
 			'UPDATE ' . TOPICS_TABLE . '
 				SET ' . $this->database->sql_build_array( 'UPDATE', [
-					'topic_resolved_post_id' => $this->database->sql_escape( $resolved_id ),
-					'topic_resolved_user_id' => $this->database->sql_escape( $user_id ),
+					'topic_resolved_post_id' => $this->database->sql_escape( $post_id ),
+					'topic_resolved_poster_id' => $this->database->sql_escape( $poster_id ),
+					'topic_resolved_by_user_id' => $this->database->sql_escape( $user_id ),
 				] ) . '
 				WHERE topic_id = ' . $this->database->sql_escape( $topic[ 'topic_id' ] )
 		);
@@ -265,6 +288,28 @@ final class functions {
 			return false;
 
 		}
+
+		/**
+		 * Only notify the post author when the post is being marked as
+		 * the topic resolution and the person marking the post as the
+		 * resolution is not the author of said post.
+		 */ 
+		if ( 0 !== $post_id ) {
+
+			$this->notifications->add_notifications( 'danieltj.resolvedtopics.notification.type.resolved', [
+				'item_id'			=> $this->create_notification_item_id(),
+				'post_id'			=> $post_id,
+				'poster_id'			=> $poster_id, // The author of the post.
+				'user_id'			=> $user_id, // The user changing the topic resolution.
+				'topic_title'		=> $topic[ 'topic_title' ],
+			] );
+
+		}
+
+		$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_TOPIC_RESOLVED', time(), [
+			'reportee_id' => $user_id,
+			'topic_id' => $topic[ 'topic_id' ],
+		] );
 
 		return true;
 
@@ -289,7 +334,8 @@ final class functions {
 			'UPDATE ' . TOPICS_TABLE . '
 				SET ' . $this->database->sql_build_array( 'UPDATE', [
 					'topic_resolved_post_id' => 0,
-					'topic_resolved_user_id' => $this->database->sql_escape( $user_id ),
+					'topic_resolved_poster_id' => 0,
+					'topic_resolved_by_user_id' => $this->database->sql_escape( $user_id ),
 				] ) . '
 				WHERE topic_id = ' . $this->database->sql_escape( $topic_id )
 		);
@@ -305,7 +351,31 @@ final class functions {
 
 		}
 
+		$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_TOPIC_UNRESOLVED', time(), [
+			'reportee_id' => $user_id,
+			'topic_id' => $topic_id,
+		] );
+
 		return true;
+
+	}
+
+	/**
+	 * Return a unique identifier for notifications.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return integer  An integer to use as an item_id for notifications.
+	 */
+	public function create_notification_item_id() {
+
+		$item_id = (int) $this->config[ 'resolved_topics_notify_item_id' ];
+
+		$item_id += 1;
+
+		$this->config->set( 'resolved_topics_notify_item_id', $item_id );
+
+		return $item_id;
 
 	}
 

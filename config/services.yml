@@ -24,6 +24,18 @@ services:
         class: danieltj\resolvedtopics\includes\functions
         arguments:
             - '@auth'
+            - '@config'
             - '@dbal.conn'
+            - '@log'
+            - '@notification_manager'
             - '@routing.helper'
             - '@user'
+
+    danieltj.resolvedtopics.notification.type.resolved:
+        class: danieltj\resolvedtopics\notification\type\resolved
+        parent: notification.type.base
+        shared: false
+        tags: [ { name: notification.type } ]
+        calls:
+            - [ 'set_user_loader', [ '@user_loader' ] ]
+            - [ 'set_functions', [ '@danieltj.resolvedtopics.includes.functions' ] ]

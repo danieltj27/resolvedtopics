@@ -76,7 +76,9 @@ class listener implements EventSubscriberInterface {
 	 */
 	public function add_languages() {
 
-		$this->language->add_lang( [ 'api', 'common', 'permissions' ], 'danieltj/resolvedtopics' );
+		$this->language->add_lang( [
+			'api', 'common', 'notifications', 'permissions'
+		], 'danieltj/resolvedtopics' );
 
 	}
 
@@ -143,7 +145,7 @@ class listener implements EventSubscriberInterface {
 
 		$topic_resolved_text = '';
 
-		if ( 0 !== (int) $event[ 'topic_data' ][ 'topic_resolved_user_id' ] && $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) {
+		if ( 0 !== (int) $event[ 'topic_data' ][ 'topic_resolved_by_user_id' ] && $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) {
 
 			$user = $this->functions->get_resolved_topic_user( $event[ 'topic_data' ][ 'topic_id' ] );
 

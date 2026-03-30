@@ -158,7 +158,7 @@ class listener implements EventSubscriberInterface {
 		}
 
 		$event[ 'post_row' ] = array_merge( $event[ 'post_row' ], [
-			'U_RESOLVE'				=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_poster' ], $event[ 'topic_data' ][ 'forum_id' ] ) && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
+			'U_RESOLVE'				=> ( $this->functions->can_resolve_topic( $event[ 'topic_data' ][ 'topic_poster' ], $event[ 'topic_data' ][ 'forum_id' ] ) && (int) $event[ 'topic_data' ][ 'topic_first_post_id' ] !== (int) $event[ 'row' ][ 'post_id' ] && 1 === (int) $event[ 'row' ][ 'post_visibility' ] ) ? $this->functions->get_resolve_topic_route( $event[ 'row' ][ 'post_id' ] ) : false,
 			'S_POST_RESOLUTION'		=> ( $event[ 'row' ][ 'post_id' ] === $event[ 'topic_data' ][ 'topic_resolved_post_id' ] ) ? true : false,
 			'POST_RESOLVED_TOPIC'	=> $topic_resolved_text,
 		] );

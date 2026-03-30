@@ -268,6 +268,18 @@ final class functions {
 
 		}
 
+		// Don't allow the first post to be marked as the reoslution.
+		if ( $post_id === (int) $topic[ 'topic_first_post_id' ] ) {
+
+			$this->log->add( 'user', $user_id, $this->user->data[ 'user_ip' ], 'RESOLVED_TOPICS_ERROR_FUNC_FIRST_POST', time(), [
+				'reportee_id' => $user_id,
+				'post_id' => $post_id,
+			] );
+
+			return false;
+
+		}
+
 		$this->database->sql_query(
 			'UPDATE ' . TOPICS_TABLE . '
 				SET ' . $this->database->sql_build_array( 'UPDATE', [

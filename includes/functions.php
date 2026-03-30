@@ -194,6 +194,71 @@ final class functions {
 	}
 
 	/**
+	 * Return the number of topics the given user has resolved.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param integer $user_id The user ID used to search resolved topics.
+	 * 
+	 * @return integer  The total number of resolved topics.
+	 */
+	public function get_users_total_resolved_topics( $user_id ) {
+
+		$user_id = (int) $user_id;
+
+		$result = $this->database->sql_query(
+			'SELECT count(*) FROM ' . TOPICS_TABLE . '
+				WHERE topic_resolved_poster_id = ' . $this->database->sql_escape( $user_id )
+			);
+
+		$topics = $this->database->sql_fetchrow( $result );
+		$this->database->sql_freeresult( $result );
+
+		return (int) $topics[ 'count(*)' ];
+
+	}
+
+	/**
+	 * Return all the post IDs that a user has had marked as a resolution.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param integer $user_id The user ID to search against.
+	 * 
+	 * @return array  The array of post IDs that have resolved topics.
+	 */
+	public function get_resolved_topic_posts_by_user_id( $user_id ) {
+
+		$user_id = (int) $user_id;
+
+		$result = $this->database->sql_query(
+			'SELECT p.post_id
+				FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t
+				WHERE t.topic_resolved_poster_id = ' . $this->database->sql_escape( $user_id ) . ' AND p.post_id = t.topic_resolved_post_id'
+			);
+
+		$topics = $this->database->sql_fetchrowset( $result );
+		$this->database->sql_freeresult( $result );
+
+		if ( false === $topics || ! is_array( $topics ) ) {
+
+			return [];
+
+		}
+
+		$post_ids = [];
+
+		foreach ( $topics as $post ) {
+
+			$post_ids[] = (int) $post[ 'post_id' ];
+
+		}
+
+		return $post_ids;
+
+	}
+
+	/**
 	 * Resolve a topic by the post ID.
 	 * 
 	 * @since 1.0.0

@@ -10,6 +10,7 @@ namespace danieltj\resolvedtopics\event;
 
 use phpbb\auth\auth;
 use phpbb\language\language;
+use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
 use danieltj\resolvedtopics\includes\functions;
@@ -26,6 +27,11 @@ class listener implements EventSubscriberInterface {
 	 * @var language
 	 */
 	protected $language;
+
+	/**
+	 * @var request
+	 */
+	protected $request;
 
 	/**
 	 * @var template
@@ -45,10 +51,11 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * Constructor
 	 */
-	public function __construct( auth $auth, language $language, template $template, user $user, functions $functions ) {
+	public function __construct( auth $auth, language $language, request $request, template $template, user $user, functions $functions ) {
 
 		$this->auth = $auth;
 		$this->language = $language;
+		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
 		$this->functions = $functions;
@@ -61,12 +68,14 @@ class listener implements EventSubscriberInterface {
 	static public function getSubscribedEvents() {
 
 		return [
-			'core.user_setup_after'							=> 'add_languages',
-			'core.permissions'								=> 'add_permissions',
-			'core.page_header'								=> 'add_template_vars',
-			'core.viewforum_modify_topicrow'				=> 'update_topic_template_vars',
-			'core.viewtopic_assign_template_vars_before'	=> 'add_topic_template_vars',
-			'core.viewtopic_modify_post_row'				=> 'update_topic_post_row',
+			'core.user_setup_after'									=> 'add_languages',
+			'core.permissions'										=> 'add_permissions',
+			'core.page_header'										=> 'add_template_vars',
+			'core.memberlist_modify_view_profile_template_vars'		=> 'update_memberlist_template_vars',
+			'core.search_get_posts_data'							=> 'update_search_sql_query',
+			'core.viewforum_modify_topicrow'						=> 'update_topic_template_vars',
+			'core.viewtopic_assign_template_vars_before'			=> 'add_topic_template_vars',
+			'core.viewtopic_modify_post_row'						=> 'update_topic_post_row',
 		];
 
 	}
@@ -77,8 +86,25 @@ class listener implements EventSubscriberInterface {
 	public function add_languages() {
 
 		$this->language->add_lang( [
-			'api', 'common', 'notifications', 'permissions'
+			'api', 'common', 'notifications', 'permissions', 'ucp'
 		], 'danieltj/resolvedtopics' );
+
+	}
+
+	/**
+	 * Add Permissions
+	 */
+	public function add_permissions( $event ) {
+
+		$event->update_subarray( 'permissions', 'f_resolve_own_topics', [
+			'lang'	=> 'ACL_F_RESOLVE_OWN_TOPICS',
+			'cat'	=> 'post'
+		] );
+
+		$event->update_subarray( 'permissions', 'm_resolve_all_topics', [
+			'lang'	=> 'ACL_M_RESOLVE_ALL_TOPICS',
+			'cat'	=> 'topic_actions'
+		] );
 
 	}
 
@@ -98,19 +124,40 @@ class listener implements EventSubscriberInterface {
 	}
 
 	/**
-	 * Add Permissions
+	 * memberlist
 	 */
-	public function add_permissions( $event ) {
+	public function update_memberlist_template_vars( $event ) {
 
-		$event->update_subarray( 'permissions', 'f_resolve_own_topics', [
-			'lang'	=> 'ACL_F_RESOLVE_OWN_TOPICS',
-			'cat'	=> 'post'
+		$event[ 'template_ary' ] = array_merge( $event[ 'template_ary' ], [
+			'TOTAL_RESOLVED_TOPICS'		=> $this->functions->get_users_total_resolved_topics( $event[ 'user_id' ] ),
+			'SEARCH_RESOLVED_TOPICS'	=> append_sid( 'search.php', [
+				'author_id'		=> (int) $event[ 'user_id' ],
+				'search_id'		=> 'resolved_topics',
+			] ),
 		] );
 
-		$event->update_subarray( 'permissions', 'm_resolve_all_topics', [
-			'lang'	=> 'ACL_M_RESOLVE_ALL_TOPICS',
-			'cat'	=> 'topic_actions'
-		] );
+	}
+
+	/**
+	 * search
+	 * 
+	 * @todo missing lots of page info (breadcrumbs, title etc)
+	 * 
+	 * also breaks when the user has no resolved topics
+	 */
+	public function update_search_sql_query( $event ) {
+
+		if ( 'resolved_topics' === $this->request->variable( 'search_id', '' ) ) {
+
+			$post_ids = $this->functions->get_resolved_topic_posts_by_user_id( $event[ 'author_id_ary' ][ 0 ] );
+
+			$post_where = implode( ', ', $post_ids );
+
+			$event[ 'sql_array' ] = array_merge( $event[ 'sql_array' ], [
+				'WHERE' => 'p.post_id IN (' . $post_where . ')',
+			] );
+
+		}
 
 	}
 

@@ -113,9 +113,7 @@ class resolved extends \phpbb\notification\type\base {
 			'ignore_users' => [ ANONYMOUS ]
 		], $options );
 
-		$user_methods = $this->check_user_notification_options( [
-			$data[ 'poster_id' ]
-		], $options );
+		$user_methods = $this->check_user_notification_options( $this->users_to_query(), $options );
 
 		if ( ! empty( $user_methods ) && isset( $user_methods[ $data[ 'user_id' ] ] ) ) {
 

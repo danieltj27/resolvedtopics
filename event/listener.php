@@ -73,8 +73,8 @@ class listener implements EventSubscriberInterface {
 			'core.page_header'										=> 'add_template_vars',
 			'core.delete_post_after'								=> 'update_delete_post_data',
 			'core.mcp_change_poster_after'							=> 'update_author_post_data',
-			'core.memberlist_modify_view_profile_template_vars'		=> 'update_memberlist_template_vars',
-			'core.viewforum_modify_topicrow'						=> 'update_topic_template_vars',
+			'core.memberlist_modify_view_profile_template_vars'		=> 'add_memberlist_template_vars',
+			'core.viewforum_modify_topicrow'						=> 'add_forum_template_vars',
 			'core.viewtopic_assign_template_vars_before'			=> 'add_topic_template_vars',
 			'core.viewtopic_modify_post_row'						=> 'update_topic_post_row',
 		];
@@ -156,7 +156,7 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * memberlist
 	 */
-	public function update_memberlist_template_vars( $event ) {
+	public function add_memberlist_template_vars( $event ) {
 
 		$event[ 'template_ary' ] = array_merge( $event[ 'template_ary' ], [
 			'TOTAL_RESOLVED_TOPICS'		=> $this->functions->get_users_total_resolved_topics( $event[ 'user_id' ] ),
@@ -171,7 +171,7 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * viewforum
 	 */
-	public function update_topic_template_vars( $event ) {
+	public function add_forum_template_vars( $event ) {
 
 		$event[ 'topic_row' ] = array_merge( $event[ 'topic_row' ], [
 			'TOPIC_RESOLVED' => ( 0 !== (int) $event[ 'row' ][ 'topic_resolved_post_id' ] && false !== $this->functions->get_resolved_topic_post( $event[ 'row' ][ 'topic_id' ] ) ) ? true : false,

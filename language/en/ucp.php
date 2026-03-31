@@ -20,5 +20,5 @@ if ( empty( $lang ) || ! is_array( $lang ) ) {
 
 $lang = array_merge( $lang, [
 	'UCP_RESOLVED_TOPICS_LABEL'			=> 'Resolved topics',
-	'UCP_RESOLVED_TOPICS_SEARCH_LINK'	=> 'Search topics resolved by user',
+	'UCP_RESOLVED_TOPICS_SEARCH_LINK'	=> 'Search resolved topics',
 ] );

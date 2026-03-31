@@ -109,10 +109,6 @@ class resolved extends \phpbb\notification\type\base {
 	 */
 	public function find_users_for_notification( $data, $options = [] ) {
 
-		/**
-		 * @todo fix users sending resolved topic notifications to themselves
-		 */
-
 		$options = array_merge( [
 			'ignore_users' => [ ANONYMOUS ]
 		], $options );

@@ -72,7 +72,6 @@ class listener implements EventSubscriberInterface {
 			'core.permissions'										=> 'add_permissions',
 			'core.page_header'										=> 'add_template_vars',
 			'core.memberlist_modify_view_profile_template_vars'		=> 'update_memberlist_template_vars',
-			'core.search_get_posts_data'							=> 'update_search_sql_query',
 			'core.viewforum_modify_topicrow'						=> 'update_topic_template_vars',
 			'core.viewtopic_assign_template_vars_before'			=> 'add_topic_template_vars',
 			'core.viewtopic_modify_post_row'						=> 'update_topic_post_row',
@@ -135,29 +134,6 @@ class listener implements EventSubscriberInterface {
 				'search_id'		=> 'resolved_topics',
 			] ),
 		] );
-
-	}
-
-	/**
-	 * search
-	 * 
-	 * @todo missing lots of page info (breadcrumbs, title etc)
-	 * 
-	 * also breaks when the user has no resolved topics
-	 */
-	public function update_search_sql_query( $event ) {
-
-		if ( 'resolved_topics' === $this->request->variable( 'search_id', '' ) ) {
-
-			$post_ids = $this->functions->get_resolved_topic_posts_by_user_id( $event[ 'author_id_ary' ][ 0 ] );
-
-			$post_where = implode( ', ', $post_ids );
-
-			$event[ 'sql_array' ] = array_merge( $event[ 'sql_array' ], [
-				'WHERE' => 'p.post_id IN (' . $post_where . ')',
-			] );
-
-		}
 
 	}
 

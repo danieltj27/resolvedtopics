@@ -114,10 +114,18 @@ class resolved extends \phpbb\notification\type\base {
 		 */
 
 		$options = array_merge( [
-			'ignore_users' => [ ANONYMOUS, (int) $data[ 'user_id' ] ]
+			'ignore_users' => [ ANONYMOUS ]
 		], $options );
 
-		$user_methods = $this->check_user_notification_options( [ $data[ 'poster_id' ] ], $options );
+		$user_methods = $this->check_user_notification_options( [
+			$data[ 'poster_id' ]
+		], $options );
+
+		if ( ! empty( $user_methods ) && isset( $user_methods[ $data[ 'user_id' ] ] ) ) {
+
+			unset( $user_methods[ $data[ 'user_id' ] ] );
+
+		}
 
 		return $user_methods;
 

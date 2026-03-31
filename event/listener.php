@@ -71,6 +71,8 @@ class listener implements EventSubscriberInterface {
 			'core.user_setup_after'									=> 'add_languages',
 			'core.permissions'										=> 'add_permissions',
 			'core.page_header'										=> 'add_template_vars',
+			'core.delete_post_after'								=> 'update_delete_post_data',
+			'core.mcp_change_poster_after'							=> 'update_author_post_data',
 			'core.memberlist_modify_view_profile_template_vars'		=> 'update_memberlist_template_vars',
 			'core.viewforum_modify_topicrow'						=> 'update_topic_template_vars',
 			'core.viewtopic_assign_template_vars_before'			=> 'add_topic_template_vars',
@@ -119,6 +121,35 @@ class listener implements EventSubscriberInterface {
 		$this->template->assign_vars( [
 			'S_RESOLVE_TOPICS' => ( 'viewtopic.php' === $this->user->page[ 'page_name' ] && ( $this->auth->acl_getf( 'm_resolve_all_topics', $forum_id ) || $this->auth->acl_getf( 'f_resolve_own_topics', $forum_id ) ) ) ? true : false,
 		] );
+
+	}
+
+	/**
+	 * includes/functions_posting.php:delete_post
+	 */
+	public function update_delete_post_data( $event ) {
+
+		if ( $this->functions->has_this_post_resolved_topic( $event[ 'post_id' ] ) ) {
+
+			$this->functions->unresolve_topic_by_id( $event[ 'topic_id' ] );
+
+		}
+
+	}
+
+	/**
+	 * includes/mcp/mcp_post.php:change_poster
+	 */
+	public function update_author_post_data( $event ) {
+
+		$post = $this->functions->get_resolved_topic_post( $event[ 'post_info' ][ 'topic_id' ] );
+
+		// Check if the delete post resolved this topic.
+		if ( false !== $post && (int) $post[ 'post_id' ] === (int) $event[ 'post_info' ][ 'post_id' ] ) {
+
+			$this->functions->resolve_topic_by_post_id( $event[ 'post_info' ][ 'post_id' ], true );
+
+		}
 
 	}
 

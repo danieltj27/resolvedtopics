@@ -194,6 +194,38 @@ final class functions {
 	}
 
 	/**
+	 * Return whether the post is marked as a topic resolution.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param integer $post_id The post ID to search for in topics.
+	 * 
+	 * @return boolean  True if it's a resolution and false if it's not.
+	 */
+	public function has_this_post_resolved_topic( $post_id ) {
+
+		$post_id = (int) $post_id;
+
+		$result = $this->database->sql_query(
+			'SELECT *
+				FROM ' . TOPICS_TABLE . '
+				WHERE topic_resolved_post_id = ' . $this->database->sql_escape( $post_id )
+			);
+
+		$topic = $this->database->sql_fetchrow( $result );
+		$this->database->sql_freeresult( $result );
+
+		if ( false !== $topic ) {
+
+			return true;
+
+		}
+
+		return false;
+
+	}
+
+	/**
 	 * Return the number of topics the given user has resolved.
 	 * 
 	 * @since 1.0.0
@@ -263,11 +295,15 @@ final class functions {
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @param integer $post_id The ID of the post that resolves the selected topic.
+	 * @param integer $post_id       The ID of the post that resolves the selected topic.
+	 * @param boolean $force_resolve (optional) Setting this to true will force updating
+	 *                               topic resolution data with the given post ID. This is
+	 *                               for when a post has the author changed to someone else
+	 *                               so the database is updated correctly.
 	 * 
 	 * @return boolean  True on success or false on failure.
 	 */
-	public function resolve_topic_by_post_id( $post_id ) {
+	public function resolve_topic_by_post_id( $post_id, $force_resolve = false ) {
 
 		$post_id = (int) $post_id;
 
@@ -315,7 +351,7 @@ final class functions {
 		 * Set the post ID to `0` if this post is already marked as
 		 * the resolution for this topic (toggle behaviour).
 		 */
-		if ( $post_id === (int) $topic[ 'topic_resolved_post_id' ] ) {
+		if ( $post_id === (int) $topic[ 'topic_resolved_post_id' ] && false === $force_resolve ) {
 
 			$post_id = 0;
 
